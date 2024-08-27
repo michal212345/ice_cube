@@ -63,9 +63,9 @@ class skin_downloader(bpy.types.Operator):
                     #Attempt to actually save the skin file
                     try:
                         #locates the skins directory
-                        skin_filename = "{}_skin_".format(Nusername)
+                        skin_filename = f"{Nusername}_skin_"
                         skin_filename = skin_filename+player_model+".png"
-                        skin_path = os.path.join(root_folder,'ice_cube_data/internal_files/skins/',skin_filename)
+                        skin_path = os.path.join(root_folder, 'ice_cube_data', 'internal_files', 'skins', skin_filename)
 
                         #unpacks the current skin
                         unpack_img(current_skin)
@@ -107,7 +107,7 @@ class apply_skin(bpy.types.Operator):
             thumbnail = bpy.data.window_managers["WinMan"].skins_folder
             skin_nodes = getSkinNode().node_tree
             current_skin = skin_nodes.nodes['Skin Tex'].image
-            skin_path = root_folder+"/ice_cube_data/internal_files/skins/"
+            skin_path = os.path.join(root_folder, 'ice_cube_data', 'internal_files', 'skins', '')
             skin_path = skin_path+thumbnail
             if isOldSkin(skin_path) == True:
                 CustomErrorBox("Unable to apply selected skin, please convert it to the 1.8 skin format!","Skin Format Error",'ERROR')
@@ -119,9 +119,9 @@ class apply_skin(bpy.types.Operator):
                 #packs the new skin
                 current_skin.pack()
                 #changes the rigs model depending on which tag is in the name
-                if str(thumbnail).__contains__("slim"):
+                if "slim" in str(thumbnail):
                     context.object.armtype_enum = 'two' #alex
-                elif str(thumbnail).__contains__("classic"):
+                elif "classic" in str(thumbnail):
                     context.object.armtype_enum = 'one' #steve
                 else:
                     pass
@@ -142,7 +142,7 @@ class reset_skin(bpy.types.Operator):
             #Sets up variables
             skin_nodes = getSkinNode().node_tree
             current_skin = skin_nodes.nodes['Skin Tex'].image
-            skin_path = root_folder+"/ice_cube_data/internal_files/rigs/textures/skin.png"
+            skin_path = os.path.join(root_folder, 'ice_cube_data', 'internal_files', 'rigs', 'textures', 'skin.png')
             #unpacks the skin
             unpack_img(current_skin)
             #applies the new skin
@@ -169,10 +169,8 @@ class delete_skin(bpy.types.Operator):
             thumbnail = bpy.data.window_managers["WinMan"].skins_folder
             skin_nodes = getSkinNode().node_tree
             current_skin = skin_nodes.nodes['Skin Tex'].image
-            skin_path = root_folder+"/ice_cube_data/internal_files/skins/"
-            default_skin = root_folder+"/ice_cube_data/internal_files/rigs/textures/skin.png"
-            skin_path = skin_path+"/"+thumbnail
-            skin_path = os.path.normpath(skin_path)
+            skin_path = os.path.join(root_folder, 'ice_cube_data', 'internal_files', 'skins', thumbnail)
+            default_skin = os.path.join(root_folder, 'ice_cube_data', 'internal_files', 'rigs', 'textures', 'skin.png')
             #if the skin on the rig matches the selected skin, unpack it, reset it to default, and re-pack it
             current_skin1 = os.path.normpath(current_skin.filepath)
             if current_skin1 == skin_path:

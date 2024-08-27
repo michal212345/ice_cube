@@ -20,8 +20,8 @@ bl_info ={
 
 #File Variables
 root_folder = os.path.dirname(os.path.abspath(__file__))
-settings_file = f"{root_folder}/ice_cube_data/settings.json"
-lang_folder = f"{root_folder}/lang"
+settings_file = os.path.join(root_folder, "ice_cube_data","settings.json")
+lang_folder = os.path.join(root_folder, "lang")
 github_url = "https://api.github.com/repos/DarthLilo/ice_cube/releases/latest"
 latest_dlc = "https://raw.githubusercontent.com/DarthLilo/ice_cube/master/ice_cube_data/dlc_list.json"
 dlc_id = []
@@ -38,35 +38,17 @@ cur_asset_id = ["ice_cube"]
 #Folder Creation
 required_dirsmain = ["backups","downloads","cache","lang"]
 
-for dir in required_dirsmain:
-    dir_path = os.path.normpath(f"{root_folder}/{dir}")
-    if os.path.exists(dir_path):
-        pass
-    else:
-        os.mkdir(dir_path)
+for directory in [os.path.join(root_folder,directory) for directory in required_dirsmain if not os.path.exists(os.path.join(root_folder,directory))]:
+    os.mkdir(directory)
 
-
-
-
-
-required_dirs = ["skins","user_packs", "user_packs/rigs", "user_packs/inventory"]
-for dir in required_dirs:
-    dir_path = os.path.normpath(f"{root_folder}/ice_cube_data/internal_files/{dir}")
-    if os.path.exists(dir_path):
-        pass
-    else:
-        os.mkdir(dir_path)
-
+required_dirs = ["skins","user_packs", os.path.join("user_packs","rigs"), os.path.join("user_packs","inventory")]
+for directory in [os.path.join(root_folder,"ice_cube_data","internal_files",os.path.normpath(directory)) for directory in required_dirs if not os.path.exists(os.path.join(root_folder,"ice_cube_data","internal_files",os.path.normpath(directory)))]: 
+    os.mkdir(directory)
 
 #Path Appending
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-
-
 #Import Files
-
-
-
 if "ice_cube_data" in locals():
     importlib.reload(ice_cube_data)
 else:
@@ -76,8 +58,6 @@ if "main" in locals():
     importlib.reload(main)
 else:
     from . import main
-
-
 
 from ice_cube_data.operators.os_management import generate_settings_json,update_settings_json
 from ice_cube_data.utils.file_manage import getFiles, open_json
@@ -91,9 +71,7 @@ authors = open_json(settings_file)['current_language_authors']
 
 
 for file in getFiles(lang_folder):
-    cur_filepath = f"{lang_folder}/{file}"
-    
-    lang_data = open_json(cur_filepath)
+    lang_data = open_json(os.path.join(lang_folder,file))
 
     if lang_data['metadata']:
         languages.append((str(len(languages)),lang_data['metadata']['language_name'],lang_data['metadata']['language_description']))
@@ -105,7 +83,7 @@ def language_update(self,context):
     language_file = internal_language_storage[int(selected_language)]
     settings_data = open_json(settings_file)
     global authors
-    language_file_data = open_json(f"{root_folder}/lang/{language_file}")
+    language_file_data = open_json(os.path.join(root_folder,"lang",language_file))
     authors.clear()
     authors = language_file_data['metadata']['authors']
     settings_data['current_language_file'] = language_file

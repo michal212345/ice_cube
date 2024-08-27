@@ -8,8 +8,8 @@ import datetime
 import random
 import zipfile
 import distutils
-from mathutils import Vector, Quaternion, Matrix, Euler
-import math
+
+import traceback
 
 #Custom Functions
 from ice_cube import root_folder, dlc_id,dlc_type,dlc_author,bl_info,valid_dlcs,settings_file
@@ -17,9 +17,9 @@ from ice_cube import root_folder, dlc_id,dlc_type,dlc_author,bl_info,valid_dlcs,
 from ice_cube_data.utils.general_func import BlenderVersConvert, IC_FKIK_Switch, bakeIceCube, badToTheBone, convertStringNumbers, setRestPose, resetRestPose, getLanguageTranslation
 from ice_cube_data.utils.file_manage import getFiles, open_json
 from ice_cube_data.utils.ui_tools import CustomErrorBox
-from ice_cube_data.utils.web_tools import CustomLink, ICDownloadImage
-from ice_cube_data.utils.selectors import isRigSelected, mat_holder_func, eye_mesh
-from ice_cube_data.operators import web
+from ice_cube_data.utils.web_tools import CustomLink
+from ice_cube_data.utils.selectors import isRigSelected
+
 
 from . import os_management
 
@@ -42,9 +42,7 @@ rig_pack_list = []
 rig_pack_names = []
 rig_id = "ice_cube"
 cur_blender_version = convertStringNumbers(list(bpy.app.version))
-
-internalfiles = os.path.join(root_folder, "ice_cube_data/internal_files/user_packs/rigs")
-user_packs = os.path.normpath(internalfiles)
+user_packs = os.path.join(root_folder, "ice_cube_data","internal_files","user_packs","rigs")
 
 def RefreshRigList():
     items = []
@@ -360,9 +358,10 @@ class refresh_dlc(bpy.types.Operator):
     bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
+        raise DeprecationWarning("This function is deprecated") # Since the download.py file is now called old_downloads.py, this function is no longer used.
+        
         refresh_dlc_func(self, context)
-        downloads_path = f"{root_folder}/ice_cube_data/ui/advanced/downloads.py"
-        exec(open(downloads_path).read())
+        exec(open(os.path.join(root_folder,"ice_cube_data","ui","advanced","downloads.py")).read())
         
         return{'FINISHED'}
     
@@ -414,8 +413,8 @@ class update_backups_list(bpy.types.Operator):
     bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self,context):
-        downloads_path = f"{root_folder}/ice_cube_data/ui/advanced/downloads.py"
-        exec(open(downloads_path).read())
+        raise DeprecationWarning("This function is deprecated") # Since the download.py file is now called old_downloads.py, this function is no longer used.
+        exec(open(os.path.join(root_folder,"ice_cube_data","ui","advanced","downloads.py")).read())
         return{'FINISHED'}
 
 class reset_all_settings(bpy.types.Operator):
@@ -436,7 +435,6 @@ class generate_asset_pack(bpy.types.Operator):
 
     def execute(self,context):
         obj = context.object
-        scene = context.scene
         if obj.get("ipaneltab6") == 0: #ASSETS
             CustomErrorBox("Generation for assets from the Ice Cube UI has been disabled, please use the new Scene UI found in the toolbar under \'Tool\'")
 
@@ -466,30 +464,23 @@ class generate_asset_pack(bpy.types.Operator):
                 ice_cube_col[0].name = obj.entry_name_asset
 
                 #folder generation
-                rigs = f"{root_folder}/ice_cube_data/internal_files/user_packs/rigs"
+                rigs = os.path.join(root_folder,"ice_cube_data","internal_files","user_packs","rigs")
 
                 if not obj.export_to_icpreset:
-                    
-                    target_save_path = f"{rigs}/{obj.asset_pack_name}"
 
-                    list_of_dirs_to_gen = ["","rigs","thumbnails",f"rigs/{obj.entry_name_asset}"]
+                    target_save_path = os.path.join(rigs,obj.asset_pack_name)
 
-                    for folder in list_of_dirs_to_gen:
-                        if os.path.exists(f"{target_save_path}/{folder}") is False:
-                            os.mkdir(f"{target_save_path}/{folder}")
-                    
-                    
                 else:
-                    temp_gen_folder = f"{rigs}/temp_generation"
+                    temp_gen_folder = os.path.join(rigs,"temp_generation")
                     if not os.path.exists(temp_gen_folder):
                         os.mkdir(temp_gen_folder) #Making temp generation folder
                     target_save_path = temp_gen_folder
 
-                    list_of_dirs_to_gen = ["","rigs","thumbnails",f"rigs/{obj.entry_name_asset}"]
+                list_of_dirs_to_gen = ["","rigs","thumbnails",os.path.join("rigs",{obj.entry_name_asset})]
 
-                    for folder in list_of_dirs_to_gen:
-                        if os.path.exists(f"{target_save_path}/{folder}") is False:
-                            os.mkdir(f"{target_save_path}/{folder}")
+                for folder in [os.path.join(target_save_path,folder) for folder in list_of_dirs_to_gen 
+                                if not os.path.exists(os.path.join(target_save_path,folder))]:
+                    os.mkdir(folder)
 
                 #settings json generation
                 settings_json_data = {
@@ -518,47 +509,43 @@ class generate_asset_pack(bpy.types.Operator):
 
 
                 converted_settings_json = json.dumps(settings_json_data,indent=4)
-                with open(f"{target_save_path}/settings.json", "w") as json_file:
+                with open(os.path.join(target_save_path,"settings.json"), "w") as json_file:
                     json_file.write(converted_settings_json)
                 
                 if obj.export_to_icpreset:
                     converted_metadata_json = json.dumps(metadata_json,indent=4)
-                    with open(f"{target_save_path}/metadata.json", "w") as json_file:
+                    with open(os.path.join(target_save_path,"metadata.json"), "w") as json_file:
                         json_file.write(converted_metadata_json)
 
                 converted_info_json = json.dumps(info_json_data,indent=4)
-                with open(f"{target_save_path}/rigs/{obj.entry_name_asset}/info.json", "w") as json_file:
+                with open(os.path.join(target_save_path,"rigs",obj.entry_name_asset,"info.json"), "w") as json_file:
                     json_file.write(converted_info_json)
                 
                 #packing textures
                 bpy.ops.file.pack_all()
 
-
                 #saving a copy of the file
                 if bpy.data.is_saved is True:
-                    filepath = f"{target_save_path}/rigs/{obj.entry_name_asset}/{obj.entry_name_asset}_NORMAL.blend"
+                    filepath = os.path.join(target_save_path,"rigs",obj.entry_name_asset,obj.entry_name_asset+"_NORMAL.blend")
                     bpy.ops.wm.save_as_mainfile(filepath=filepath,copy=True)
 
                 #thumbnail management
-                if obj.target_thumbnail_generate != "" and str(obj.target_thumbnail_generate).__contains__(".png"): #Copy Thumbnail
-                    shutil.copyfile(obj.target_thumbnail_generate,f"{target_save_path}/thumbnails/{obj.entry_name_asset}.png")
+                if obj.target_thumbnail_generate != "" and ".png" in obj.target_thumbnail_generate: #Copy Thumbnail
+                    shutil.copyfile(obj.target_thumbnail_generate,os.path.join(target_save_path,"thumbnails",obj.entry_name_asset+".png"))
                 
                 if obj.generate_baked == True:
                     bakeIceCube(self,context,True)
                     if bpy.data.is_saved is True:
-                        filepath = f"{target_save_path}/rigs/{obj.entry_name_asset}/{obj.entry_name_asset}_BAKED.blend"
+                        filepath = os.path.join(target_save_path,"rigs",obj.entry_name_asset,obj.entry_name_asset+"_BAKED.blend")
                         bpy.ops.wm.save_as_mainfile(filepath=filepath,copy=True)
                 
                 #generating thumbnail
                 if obj.generate_thumbnail is True:
-                
-
-                    
 
                     #setting save loc
                     sce = bpy.context.scene.name
                     org_save_loc = bpy.data.scenes[sce].render.filepath
-                    bpy.data.scenes[sce].render.filepath = f"{target_save_path}/thumbnails/{obj.entry_name_asset}.png"
+                    bpy.data.scenes[sce].render.filepath = os.path.join(target_save_path,"thumbnails",obj.entry_name_asset+".png")
 
                     #generating camera
                     camera_data = bpy.data.cameras.new(name='AutoGenCam')
@@ -640,9 +627,8 @@ class generate_asset_pack(bpy.types.Operator):
             
             if obj.export_to_icpreset:
                 print("RAH")
-                rigs = f"{root_folder}/ice_cube_data/internal_files/user_packs/rigs"
-                temp_gen_folder = f"{rigs}/temp_generation"
-                compressDirectory(temp_gen_folder,f"{bpy.path.abspath(obj.export_icpreset_file)}/{obj.asset_pack_name}.icpreset")
+                temp_gen_folder = os.path.join(root_folder,"ice_cube_data","internal_files","user_packs","rigs","temp_generation")
+                compressDirectory(temp_gen_folder,os.path.join(bpy.path.abspath(obj.export_icpreset_file),obj.asset_pack_name+".icpreset"))
                 shutil.rmtree(temp_gen_folder)
 
         return{'FINISHED'}
@@ -668,8 +654,7 @@ class import_icpreset_file(bpy.types.Operator,ImportHelper):
             filename = os.path.basename(selected_preset)
             clean_filename = os.path.splitext(filename)[0]
 
-            downloads = f"{root_folder}/downloads"
-            extracted_path = f"{downloads}/{clean_filename}"
+            extracted_path = os.path.join(root_folder,"downloads",clean_filename)
             try:
                 shutil.rmtree(extracted_path)
             except:
@@ -679,16 +664,17 @@ class import_icpreset_file(bpy.types.Operator,ImportHelper):
             with zipfile.ZipFile(selected_preset, 'r') as zip_ref:
                 zip_ref.extractall(extracted_path)
 
-            dlc_folder = root_folder+"/ice_cube_data/internal_files/user_packs/rigs/"
+            dlc_folder = os.path.join(root_folder,"ice_cube_data","internal_files","user_packs","rigs")
 
             try:
                 #install the new DLC
-                distutils.dir_util.copy_tree(extracted_path, f"{dlc_folder}/{clean_filename}")
+                distutils.dir_util.copy_tree(extracted_path, os.path.join(dlc_folder,clean_filename))
                 print("Finished Install!")
                 CustomErrorBox("Finished installing DLC!","Updated Finished",'INFO')
-            except:
+            except Exception as e:
                 print("Error Completing Install.")
                 CustomErrorBox("Error Completing Install.","Updated Cancelled",'ERROR')
+                print(traceback.format_exc())
         except:
             pass
 
@@ -729,15 +715,14 @@ class generate_asset_pack_global(bpy.types.Operator):
             #CHECKING FOR VARS
         if pack_name != "" and entry_name != "" and asset_author != "" and asset_version != "" and os.path.exists(thumbnail_path) is True:
             #folder generation
-            inventory = f"{root_folder}/ice_cube_data/internal_files/user_packs/inventory"
+            inventory = os.path.join(root_folder,"ice_cube_data","internal_files","user_packs","inventory")
 
-            asset_pack_path = f"{inventory}/{pack_name}"
+            asset_pack_path = os.path.join(inventory,pack_name)
 
-            list_of_dirs_to_gen = ["","assets","thumbnails",f"assets/{entry_name}"]
+            list_of_dirs_to_gen = ["","assets","thumbnails",os.path.join("assets",entry_name)]
 
-            for folder in list_of_dirs_to_gen:
-                if os.path.exists(f"{asset_pack_path}/{folder}") is False:
-                    os.mkdir(f"{asset_pack_path}/{folder}")
+            for folder in [os.path.join(asset_pack_path,folder) for folder in list_of_dirs_to_gen if not os.path.exists(os.path.join(asset_pack_path,folder))]:
+                os.mkdir(folder)
 
             #settings json generation
             settings_json_data = {
@@ -798,22 +783,21 @@ class generate_asset_pack_global(bpy.types.Operator):
                 }
 
             converted_settings_json = json.dumps(settings_json_data,indent=4)
-            with open(f"{asset_pack_path}/settings.json", "w") as json_file:
+            with open(os.path.join(asset_pack_path,'settings.json'), "w") as json_file:
                 json_file.write(converted_settings_json)
 
-            converted_info_json = json.dumps(info_json_data,indent=4)
-            with open(f"{asset_pack_path}/assets/{entry_name}/info.json", "w") as json_file:
+            converted_info_json = json.dumps(info_json_data,indent=4)  
+            with open(os.path.join(asset_pack_path,'assets',entry_name,'info.json'), "w") as json_file:
                 json_file.write(converted_info_json)
 
 
             #saving a copy of the file
-            if bpy.data.is_saved is True and pack_name != "" and entry_name != "":
-                filepath = f"{inventory}/{pack_name}/assets/{entry_name}/{entry_name}.blend"
-                bpy.ops.wm.save_as_mainfile(filepath=filepath,copy=True)
+            if bpy.data.is_saved is True:
+                bpy.ops.wm.save_as_mainfile(filepath=os.path.join(inventory,pack_name,"assets",entry_name,f"{entry_name}.blend"),copy=True)
 
             #thumbnail management
-            if thumbnail_path != "" and str(thumbnail_path).__contains__(".png"): #Copy Thumbnail
-                shutil.copyfile(thumbnail_path,f"{inventory}/{pack_name}/thumbnails/{entry_name}.png")
+            if ".png" in thumbnail_path: #Copy Thumbnail
+                shutil.copyfile(thumbnail_path,os.path.join(inventory,pack_name,"thumbnails",f"{entry_name}.png"))
 
         elif pack_name == "":
             CustomErrorBox("Please enter a name for the pack!",'Invalid Name','ERROR')
@@ -1236,13 +1220,13 @@ class update_default_rig(bpy.types.Operator):
 
     def execute(self,context):
         name = self.default_name
-        rigs_folder = f"{root_folder}/ice_cube_data/internal_files/rigs"
+        rigs_folder = os.path.join(root_folder,"ice_cube_data","internal_files","rigs")
 
         if not bpy.data.is_saved:
             CustomErrorBox("Please save the file first!",'Save Error','ERROR')
             return{'FINISHED'}
         
-        if name.__contains__("Ice Cube"):
+        if "Ice Cube" in name:
             CustomErrorBox("Name cannot contain \"Ice Cube\"!",'Name Error','ERROR')
             return{'FINISHED'}
         
@@ -1255,18 +1239,16 @@ class update_default_rig(bpy.types.Operator):
         settings_data["default_import_file"] = name
 
         if cur_blender_version >= 400:
-            filepath = f"{rigs_folder}/{name} 4.0+.blend"
+            filepath = os.path.join(rigs_folder,f"{name} 4.0+.blend")
         else:
-            filepath = f"{rigs_folder}/{name}.blend"
+            filepath = os.path.join(rigs_folder,f"{name}.blend")
+        
         bpy.ops.file.pack_all()
         bpy.ops.wm.save_as_mainfile(filepath=filepath,copy=True)
 
         converted_settings_data = json.dumps(settings_data, indent=4)
         with open(settings_file, "w") as json_file:
             json_file.write(converted_settings_data)
-        
-
-
 
         return{'FINISHED'}
     
@@ -1304,18 +1286,16 @@ class IC_DEVONLY_UpdateInternalRig(bpy.types.Operator):
     def execute(self, context):
 
         if cur_blender_version >= 400:
-            filepath = f"{root_folder}/ice_cube_data/internal_files/rigs/Ice Cube 4.0+.blend"
+            filepath = os.path.join(root_folder,"ice_cube_data","internal_files","rigs","Ice Cube 4.0+.blend")
             bpy.ops.wm.save_as_mainfile(filepath=filepath,copy=True)
-            blend1 = f"{root_folder}/ice_cube_data/internal_files/rigs/Ice Cube 4.0+.blend1"
 
-            if os.path.exists(blend1):
+            if os.path.exists(blend1:=os.path.join(root_folder,"ice_cube_data","internal_files","rigs","Ice Cube 4.0+.blend1")):
                 os.remove(blend1)
         else:
-            filepath = f"{root_folder}/ice_cube_data/internal_files/rigs/Ice Cube.blend"
+            filepath = os.path.join(root_folder,"ice_cube_data","internal_files","rigs","Ice Cube.blend")
             bpy.ops.wm.save_as_mainfile(filepath=filepath,copy=True)
-            blend1 = f"{root_folder}/ice_cube_data/internal_files/rigs/Ice Cube.blend1"
 
-            if os.path.exists(blend1):
+            if os.path.exists(blend1:=os.path.join(root_folder,"ice_cube_data","internal_files","rigs","Ice Cube.blend1")):
                 os.remove(blend1)
 
         return {'FINISHED'}

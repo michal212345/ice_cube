@@ -4,15 +4,7 @@ import shutil
 import json
 
 def getFiles(path): #returns a list of files in a specified dir
-    dir = os.path.realpath(path);
-    
-    if os.path.exists(dir):
-        dirs = [];
-
-        for i in os.listdir(dir):
-            dirs.append(i);
-
-        return dirs;
+    return [f for f in os.listdir(path) if os.path.isfile(os.path.join(path, f))]
 
 def getDirs(path):
     return [d for d in os.listdir(path) if os.path.isdir(os.path.join(path, d))]
@@ -24,13 +16,13 @@ def unpack_img(img): #unpacks a specified image
         else:
             return img.unpack(method='USE_ORIGINAL')
 
-def ClearDirectory(dir = ""): #completely clears a folder
+def ClearDirectory(dir): #completely clears a folder
     for folder in os.listdir(dir):
         filepath = os.path.join(dir, folder)
         filepath = os.path.normpath(filepath)
         shutil.rmtree(filepath)
 
-def ClearDirectoryOfFiles(dir = ""): #completely clears a folder
+def ClearDirectoryOfFiles(dir): #completely clears a folder
     for folder in os.listdir(dir):
         filepath = os.path.join(dir, folder)
         filepath = os.path.normpath(filepath)
@@ -40,18 +32,18 @@ def ClearDirectoryOfFiles(dir = ""): #completely clears a folder
             elif os.path.isdir(filepath):
                 shutil.rmtree(filepath)
         except Exception as e:
-            print('Failed to delete %s. Reason: %s' % (filepath, e))
+            print(f'Failed to delete {filepath}. Reason: {e}')
 
-def GetRootFolder(path, folder_up): #Get a str to the root folder
+def GetRootFolder(path, folder_up) -> str: # Get a str to the root folder
     path = os.path.normpath(os.path.realpath(__file__))
-    if path.__contains__("\\"):
-        path = path.replace("\\","/")
+    if "\\" in path:
+        path = path.replace("\\", "/")
     path = path.split("/")
-    path.remove(path[len(path)-1])
-    for i in range(folder_up):
-        path.remove(path[len(path)-1])
+    path.pop()  
+    for _ in range(folder_up):
+        path.pop()
 
-    return path
+    return os.path.normpath("/".join(path))
 
 def open_json(path):
     with open(path, 'r') as json_opener:

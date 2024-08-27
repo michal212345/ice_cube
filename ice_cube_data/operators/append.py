@@ -1,5 +1,6 @@
 import bpy
 import os
+import traceback
 
 from ice_cube import root_folder, settings_file
 
@@ -11,27 +12,21 @@ from ice_cube_data.utils.general_func import convertStringNumbers,selectBoneColl
 cur_blender_version = convertStringNumbers(list(bpy.app.version))
 
 def append_preset_func(self, context, rig_baked):
-        files_list = []
         #sets up variables
-        normals = {};
-        baked = {};
+        normals = {}
+        baked = {}
         obj = context.object
         try:
             selected_file = context.scene.selected_rig_preset
-            asset_directory = root_folder+"/ice_cube_data/internal_files/user_packs/rigs/"+selected_file+"/rigs"
-            thumbnails_directory = root_folder+"/ice_cube_data/internal_files/user_packs/rigs/"+selected_file+"/thumbnails"
+            asset_directory = os.path.join(root_folder,"ice_cube_data","internal_files","user_packs","rigs",selected_file,"rigs")
         except:
             selected_file = "important"
-            asset_directory = root_folder+"/ice_cube_data/internal_files/"+selected_file+"/rigs"
-            thumbnails_directory = root_folder+"/ice_cube_data/internal_files/"+selected_file+"/thumbnails"
-        asset_directory = os.path.normpath(asset_directory)
-        thumbnails_directory = os.path.normpath(thumbnails_directory)
-
+            asset_directory = os.path.join(root_folder,"ice_cube_data","internal_files",selected_file,"rigs")
         dirs = getFiles(asset_directory)
 
         try:
             for dir in dirs:
-                newDir = os.path.join(asset_directory, dir);
+                newDir = os.path.join(asset_directory, dir)
 
                 for file in os.listdir(newDir):
 
@@ -39,12 +34,13 @@ def append_preset_func(self, context, rig_baked):
                         pass
                     else:
                         newFile = os.path.join(newDir, file)
-                        if (file.__contains__('BAKED')):
-                            baked[dir] = newFile;
-                        elif (file.__contains__('NORMAL')):
-                            normals[dir] = newFile;
-        except:
-            CustomErrorBox(message="Unknown Error", title="Append Exception", icon='ERROR')
+                        if 'BAKED' in file:
+                            baked[dir] = newFile
+                        elif 'NORMAL' in file:
+                            normals[dir] = newFile
+        except Exception as e:
+            CustomErrorBox(message="Unknown Error, check console", title="Append Exception", icon='ERROR')
+            print(traceback.format_exc())
         
         thumbnailnopngmis = bpy.data.window_managers["WinMan"].my_previews_presets.split(".")[0]
 
@@ -52,9 +48,9 @@ def append_preset_func(self, context, rig_baked):
         def getPreset(thumbnail, isBaked):
             try:
                 if isBaked:
-                    return baked[thumbnail];
+                    return baked[thumbnail]
                 else:
-                    return normals[thumbnail];
+                    return normals[thumbnail]
             except KeyError:
                 if rig_baked == True:
                     CustomErrorBox("Missing \'BAKED\' file.","Append Exception",'ERROR')
@@ -62,8 +58,9 @@ def append_preset_func(self, context, rig_baked):
                     CustomErrorBox("Missing \'NORMAL\' file.", "Append Exception", 'ERROR')
                 elif():
                     CustomErrorBox(message="Couldn't find file or folder for \""+thumbnailnopngmis+"\" from \""+selected_file+"\"", title="Append Exception", icon='ERROR')
-            except:
-                CustomErrorBox("Unknown Error" "Append Exception", 'ERROR')
+            except Exception as e:
+                CustomErrorBox("Unknown Error, check console" "Append Exception", 'ERROR')
+                print(traceback.format_exc())
 
         #sets up appending variables
         thumbnail = bpy.data.window_managers["WinMan"].my_previews_presets
@@ -78,29 +75,25 @@ def append_preset_func(self, context, rig_baked):
         section = "Collection"
         obj = thumbnailnopng
 
-
         #Attemps to append it based on the previously established variables, if not, draw a custom error box
         try:
             filepath  = os.path.join(blendfile,section,obj)
             directory = os.path.join(blendfile,section)
-            filename  = obj
-            bpy.ops.wm.append(filepath=filepath,filename=filename,directory=directory,link=False,active_collection=True)
+            bpy.ops.wm.append(filepath=filepath,filename=obj,directory=directory,link=False,active_collection=True)
             CustomErrorBox("Appended \""+thumbnailnopng+"\" from \""+blendfile_name+"\" in \""+selected_file+"\"", "Operation Completed", 'CHECKMARK')
         except RuntimeError:
             CustomErrorBox("Please delete any \".blend1\" files from the directory!", "Directory Error", 'ERROR')
         except:
-            CustomErrorBox("An unknown error has occured.", "Unknown Error", 'ERROR')
+            CustomErrorBox("An unknown error has occured. Check console", "Unknown Error", 'ERROR')
+            print(traceback.format_exc())
 
         return{'FINISHED'}
 
 def append_default_rig(self, context):
 
     #sets up variables
-    script_directory = root_folder
-    script_directory = os.path.join(script_directory, "ice_cube_data/internal_files/rigs")
-    script_directory = os.path.normpath(script_directory)
+    script_directory = os.path.join(root_folder,"ice_cube_data","internal_files","rigs")
     settings_data = open_json(settings_file)
-
 
     target_name = settings_data["default_import_file"]
 
@@ -115,18 +108,16 @@ def append_default_rig(self, context):
         blendfile = os.path.join(script_directory, f"Ice Cube.blend")
 
     section = "Collection"
-    obj = target_name
-    filepath = os.path.join(blendfile,section,obj)
+    filepath = os.path.join(blendfile,section,target_name)
     directory = os.path.join(blendfile,section)
-    filename = obj
+    
     #appends the rig
-    bpy.ops.wm.append(filepath=filepath,filename=filename,directory=directory,link=False,active_collection=True)
+    bpy.ops.wm.append(filepath=filepath,filename=target_name,directory=directory,link=False,active_collection=True)
     return {'FINISHED'}
 
 def append_emotion_line_func(self, context):
-        emotion_line_dir = root_folder+"/ice_cube_data/internal_files/rigs"
-        emotion_line_dir = os.path.normpath(emotion_line_dir)
-
+        emotion_line_dir = os.path.join(root_folder,"ice_cube_data","internal_files","rigs")
+        
         if cur_blender_version >= 400:
             blendfile = os.path.join(emotion_line_dir, "emotion_line 4.0+.blend")
         else:

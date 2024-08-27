@@ -4,22 +4,18 @@ import os
 import bpy.utils.previews
 from bpy.props import EnumProperty
 from bpy.types import WindowManager
-from sys import platform
-import json
 
-from ice_cube import root_folder, dlc_id,dlc_type,dlc_author, settings_file, cur_date, valid_dlcs
+from ice_cube import root_folder, valid_dlcs
 
 #Custom Files
 from ice_cube_data.properties import properties
 from ice_cube_data.operators import main_operators, os_management
-from ice_cube_data.operators.web import check_for_updates_func, check_for_updates_auto
+from ice_cube_data.operators.web import check_for_updates_auto
 from ice_cube_data.systems import inventory_system, skin_downloader,search_system
-
 
 #Custom Functions
 from ice_cube_data.utils.selectors import isRigSelected, main_face
-from ice_cube_data.utils.file_manage import getFiles, open_json
-from ice_cube_data.utils.general_func import GetListIndex,convertStringNumbers, getLanguageTranslation
+from ice_cube_data.utils.general_func import convertStringNumbers, getLanguageTranslation
 
 #UI Panels
 from ice_cube_data.ui import old_credits_info, credits_info
@@ -34,13 +30,17 @@ import ice_cube
 #File Variables
 rig_id = "ice_cube"
 
-
-
-
-
 #InFileDefs
 
 cur_blender_version = convertStringNumbers(list(bpy.app.version))
+
+def thumbnail_path(self, cur_selected_rig) -> str:
+    """get the thumbnail path"""
+    if cur_selected_rig != "NONE":
+        thumbnail_directory = os.path.join(root_folder,'ice_cube_data','internal_files','user_packs','rigs',os.path.normpath(cur_selected_rig),'thumbnails')
+    else:
+        thumbnail_directory = os.path.join(root_folder,'ice_cube_data','internal_files','important','thumbnails')
+    return thumbnail_directory
 
 def presets_menu(self, context):
     """presets menu thing"""
@@ -49,18 +49,9 @@ def presets_menu(self, context):
 
     if context is None:
         return enum_items
-    
-    cur_selected_rig = scene.selected_rig_preset
 
-    if cur_selected_rig != "NONE":
-        thumbnail_directory = root_folder+"/ice_cube_data/internal_files/user_packs/rigs/"+cur_selected_rig+"/thumbnails"
-    else:
-        thumbnail_directory = root_folder+"/ice_cube_data/internal_files/important/thumbnails"
+    filepath  = thumbnail_path(self, scene.selected_rig_preset)
 
-    filepath  = thumbnail_directory
-
-
-    wm = context.window_manager
     directory = filepath
 
     pcoll = preview_collections["main"]
@@ -91,21 +82,12 @@ def presets_menu(self, context):
 def inventory_menu(self, context):
     """inventory menu thing"""
     enum_items = []
-    cur_selected_asset = context.scene.selected_inv_asset
 
     if context is None:
         return enum_items
 
+    filepath  = thumbnail_path(self, context.scene.selected_inv_asset)
 
-    if cur_selected_asset != "NONE":
-        thumbnail_directory = root_folder+"/ice_cube_data/internal_files/user_packs/inventory/"+cur_selected_asset+"/thumbnails"
-    else:
-        thumbnail_directory = root_folder+"/ice_cube_data/internal_files/important/thumbnails"
-
-    filepath  = thumbnail_directory
-
-
-    wm = context.window_manager
     directory = filepath
 
     pcoll = preview_collections["main"]
@@ -141,11 +123,7 @@ def skins_menu(self, context):
         return enum_items
 
 
-    skin_path = root_folder+"/ice_cube_data/internal_files/skins"
-
-    filepath  = skin_path
-
-    wm = context.window_manager
+    filepath  = os.path.join(os.path.normpath(root_folder),'ice_cube_data','internal_files','skins')
     directory = filepath
 
     pcoll = preview_collections["main"]
@@ -179,9 +157,8 @@ def dlc_img_cache(self, context):
     if context is None:
         return enum_items
 
-    filepath = root_folder+"/cache"
+    filepath  = os.path.join(os.path.normpath(root_folder),'cache')
 
-    wm = context.window_manager
     directory = filepath
 
     pcoll = preview_collections["main"]
@@ -442,7 +419,7 @@ def register():
 
     pcoll = bpy.utils.previews.new()
     
-    my_icons_dir = os.path.normpath(f"{root_folder}/ice_cube_data/internal_files/icons")
+    my_icons_dir = os.path.join(os.path.normpath(root_folder),'ice_cube_data','internal_files','icons')
     pcoll.load("DarthLilo", os.path.join(my_icons_dir, "DarthLilo.png"), 'IMAGE')
     pcoll.load("Alex", os.path.join(my_icons_dir, "Alex.png"), 'IMAGE')
     pcoll.load("Steve", os.path.join(my_icons_dir, "Steve.png"), 'IMAGE')
