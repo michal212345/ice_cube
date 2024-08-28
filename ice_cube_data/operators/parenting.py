@@ -8,6 +8,7 @@ from ice_cube_data.utils.ui_tools import CustomErrorBox
 
 def moveModifier(input_mesh,name,loc):
     cur_index = input_mesh.modifiers.find(name)
+    loc = loc + len(input_mesh.modifiers) # Fix crash when attributes already exist on a mesh when parenting
     while cur_index > loc:
         bpy.ops.object.modifier_move_up({'object': input_mesh},modifier=name)
         cur_index -= 1
@@ -32,8 +33,8 @@ def parent_left_arm(self, context, input_mesh):
     #gives the meshes their attributes
     left_leg_parent = input_mesh
     rig = isRigSelected(context)
-    
-    
+
+
 
     #Arm Deform
     mod_name = "Arm Deform"
