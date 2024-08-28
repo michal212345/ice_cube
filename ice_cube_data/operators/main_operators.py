@@ -45,13 +45,15 @@ cur_blender_version = convertStringNumbers(list(bpy.app.version))
 user_packs = os.path.join(root_folder, "ice_cube_data","internal_files","user_packs","rigs")
 
 def RefreshRigList():
-    items = []
-    items = rig_pack_list
-    return items
+    if len(rig_pack_list) == 0:
+        CustomErrorBox("No rigs found!","No Rigs",'INFO')
+        return [('NONE', 'REFRESH','REFRESH','NONE',0)]
+    else:
+        return rig_pack_list
     
 bpy.types.Scene.selected_rig_preset = EnumProperty(
         name = "Selected Pack",
-        items = [('NONE', 'REFRESH','REFRESH')]
+        items = [('NONE', 'REFRESH','REFRESH','NONE',0)]
         )
 
 #Classes

@@ -30,13 +30,15 @@ internalfiles = os.path.join(root_folder, "ice_cube_data/internal_files/user_pac
 user_packs = os.path.normpath(internalfiles)
 
 def RefreshInvList():
-    items = []
-    items = asset_pack_list
-    return items
+    if len(asset_pack_list) == 0:
+        CustomErrorBox("No assets found!","No assets",'INFO')
+        return [('NONE', 'REFRESH','REFRESH','NONE',0)]
+    else:
+        return asset_pack_list
 
 bpy.types.Scene.selected_inv_asset = EnumProperty(
         name = "Selected Pack",
-        items = [('NONE', 'REFRESH','REFRESH')]
+        items = [('NONE', 'REFRESH','REFRESH','NONE',0)]
         )
 
 bpy.types.Scene.asset_entries = EnumProperty(
