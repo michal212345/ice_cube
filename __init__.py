@@ -52,12 +52,12 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 if "ice_cube_data" in locals():
     importlib.reload(ice_cube_data)
 else:
-    from . import ice_cube_data
+    import ice_cube_data
 
 if "main" in locals():
     importlib.reload(main)
 else:
-    from . import main
+    import main
 
 from ice_cube_data.operators.os_management import generate_settings_json,update_settings_json
 from ice_cube_data.utils.file_manage import getFiles, open_json
