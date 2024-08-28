@@ -7,7 +7,7 @@ from bpy_extras.io_utils import ImportHelper
 import datetime
 import random
 import zipfile
-import distutils
+import distutils.dir_util
 
 import traceback
 
@@ -650,35 +650,29 @@ class import_icpreset_file(bpy.types.Operator,ImportHelper):
     )
 
     def execute(self, context):
+        selected_preset = self.filepath
+
+        filename = os.path.basename(selected_preset)
+        clean_filename = os.path.splitext(filename)[0]
+
+        extracted_path = os.path.join(root_folder,"downloads",clean_filename)
         try:
-            selected_preset = self.filepath
-
-            filename = os.path.basename(selected_preset)
-            clean_filename = os.path.splitext(filename)[0]
-
-            extracted_path = os.path.join(root_folder,"downloads",clean_filename)
-            try:
-                shutil.rmtree(extracted_path)
-            except:
-                pass
-            os.mkdir(extracted_path)
-
-            with zipfile.ZipFile(selected_preset, 'r') as zip_ref:
-                zip_ref.extractall(extracted_path)
-
-            dlc_folder = os.path.join(root_folder,"ice_cube_data","internal_files","user_packs","rigs")
-
-            try:
-                #install the new DLC
-                distutils.dir_util.copy_tree(extracted_path, os.path.join(dlc_folder,clean_filename))
-                print("Finished Install!")
-                CustomErrorBox("Finished installing DLC!","Updated Finished",'INFO')
-            except Exception as e:
-                print("Error Completing Install.")
-                CustomErrorBox("Error Completing Install.","Updated Cancelled",'ERROR')
-                print(traceback.format_exc())
+            shutil.rmtree(extracted_path)
         except:
             pass
+        os.mkdir(extracted_path)
+
+        with zipfile.ZipFile(selected_preset, 'r') as zip_ref:
+            zip_ref.extractall(extracted_path)
+
+        dlc_folder = os.path.join(root_folder,"ice_cube_data","internal_files","user_packs","rigs")
+        try:    
+            #install the new DLC
+            distutils.dir_util.copy_tree(extracted_path, os.path.join(dlc_folder,clean_filename))
+            print("Finished Install!")
+        except Exception as e:
+            CustomErrorBox("Failed to install the DLC!","Install Error",'ERROR')
+            print(traceback.format_exc())
 
         return {'FINISHED'}
 
@@ -1160,15 +1154,17 @@ class ic_update_bonelayer(bpy.types.Operator):
                 collections.new("Layer 12")
     
             for collection in collections:
-                try:
-                    collection["layer"]
-                except:
-                    if collection.name in layer_update_dict:
-                        if layer_update_dict[collection.name] == "DELETE":
-                            collections.remove(collection)
-                        else:
-                            collection["layer"] = layer_update_dict[collection.name]
-                            collection.name = layer_update_dict[collection.name]
+                if collection is not None: # Somehow collection can be none?
+                    try:
+                        collection["layer"]
+                    except:
+                        if collection.name in layer_update_dict:
+                            if layer_update_dict[collection.name] == "DELETE":
+                                collections.remove(collection)
+                            else:
+                                collection["layer"] = layer_update_dict[collection.name]
+                                collection.name = layer_update_dict[collection.name]
+                
         
         rig.data["UpdatedTo4.0"] = 1
 

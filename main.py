@@ -34,10 +34,10 @@ rig_id = "ice_cube"
 
 cur_blender_version = convertStringNumbers(list(bpy.app.version))
 
-def thumbnail_path(self, cur_selected_rig) -> str:
+def thumbnail_path(self, cur_selected_rig,to='rigs') -> str:
     """get the thumbnail path"""
     if cur_selected_rig != "NONE":
-        thumbnail_directory = os.path.join(root_folder,'ice_cube_data','internal_files','user_packs','rigs',os.path.normpath(cur_selected_rig),'thumbnails')
+        thumbnail_directory = os.path.join(root_folder,'ice_cube_data','internal_files','user_packs',to,os.path.normpath(cur_selected_rig),'thumbnails')
     else:
         thumbnail_directory = os.path.join(root_folder,'ice_cube_data','internal_files','important','thumbnails')
     return thumbnail_directory
@@ -86,15 +86,12 @@ def inventory_menu(self, context):
     if context is None:
         return enum_items
 
-    filepath  = thumbnail_path(self, context.scene.selected_inv_asset)
-
-    directory = filepath
+    directory = thumbnail_path(self, context.scene.selected_inv_asset,'inventory')
 
     pcoll = preview_collections["main"]
 
     if directory == pcoll.inventory_preview:
         return pcoll.inventory_preview
-
 
     if directory and os.path.exists(directory):
         image_paths = []
@@ -110,6 +107,9 @@ def inventory_menu(self, context):
             else:
                 thumb = pcoll[name]
             enum_items.append((name, name, "", thumb.icon_id, i))
+
+    if len(enum_items) == 0:
+        enum_items.append(("NONE", "NONE", "", "", 0))
 
     pcoll.inventory_preview = enum_items
     pcoll.inventory_preview_dir = directory

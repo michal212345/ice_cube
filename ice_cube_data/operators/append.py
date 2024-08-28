@@ -16,14 +16,23 @@ def append_preset_func(self, context, rig_baked):
         normals = {}
         baked = {}
         obj = context.object
+        
+        selected_file = None
         try:
             selected_file = context.scene.selected_rig_preset
-            if selected_file == None:
-                raise Exception
-            asset_directory = os.path.join(root_folder,"ice_cube_data","internal_files","user_packs","rigs",selected_file,"rigs")
         except:
             selected_file = "important"
+            
+        if selected_file == 'NONE':
             asset_directory = os.path.join(root_folder,"ice_cube_data","internal_files",selected_file,"rigs")
+        else:
+            asset_directory = os.path.join(root_folder,"ice_cube_data","internal_files","user_packs","rigs",selected_file,"rigs")
+        
+        if not os.path.exists(asset_directory):
+            CustomErrorBox("Failed to append the preset, Either none was selected or there was an error. Check console for more information.", "Append Exception", 'ERROR')
+            print("Failed to append the preset. Asset/Directory does not exist:\n "+asset_directory)
+            return{'FINISHED'}
+        
         dirs = getFiles(asset_directory)
 
         try:
