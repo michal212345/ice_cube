@@ -8,7 +8,6 @@ from ice_cube_data.utils.ui_tools import CustomErrorBox
 
 def moveModifier(input_mesh,name,loc):
     cur_index = input_mesh.modifiers.find(name)
-    loc = loc + len(input_mesh.modifiers) # Fix crash when attributes already exist on a mesh when parenting
     while cur_index > loc:
         bpy.ops.object.modifier_move_up({'object': input_mesh},modifier=name)
         cur_index -= 1
@@ -34,25 +33,25 @@ def parent_left_arm(self, context, input_mesh):
     left_leg_parent = input_mesh
     rig = isRigSelected(context)
 
-
+    nr_of_modifiers = len(input_mesh.modifiers)
 
     #Arm Deform
     mod_name = "Arm Deform"
     modifier = left_leg_parent.modifiers.new(name=mod_name, type='LATTICE')
     modifier.object = bpy.data.objects[dynamic_obj_L_list[GetListIndex("Arm Deform LAT L", dynamic_obj_L_list)]]
-    moveModifier(input_mesh,mod_name,0)
+    moveModifier(input_mesh,mod_name,0+nr_of_modifiers)
 
     #Arm Bulge
     mod_name = "Arm Bulge"
     modifier = left_leg_parent.modifiers.new(name=mod_name, type='LATTICE')
     modifier.object = bpy.data.objects[dynamic_obj_L_list[GetListIndex("Arm Bulge LAT L", dynamic_obj_L_list)]]
-    moveModifier(input_mesh,mod_name,1)
+    moveModifier(input_mesh,mod_name,1+nr_of_modifiers)
 
     #twist
     mod_name = "Arm Twist"
     modifier = left_leg_parent.modifiers.new(name=mod_name, type='LATTICE')
     modifier.object = bpy.data.objects[dynamic_obj_L_list[GetListIndex("Arm Twist LAT L", dynamic_obj_L_list)]]
-    moveModifier(input_mesh,mod_name,2)
+    moveModifier(input_mesh,mod_name,2+nr_of_modifiers)
 
     #Arm Squish
     mod_name = "Arm Squish"
@@ -70,7 +69,7 @@ def parent_left_arm(self, context, input_mesh):
     target.id = rig
     target.data_path = "[\"antilag\"]"
     driver.expression = "+1 -var"
-    moveModifier(input_mesh,mod_name,3)
+    moveModifier(input_mesh,mod_name,3+nr_of_modifiers)
 
     #Smooth Bend
     mod_name = "Smooth Bend"
@@ -88,7 +87,7 @@ def parent_left_arm(self, context, input_mesh):
     target.id = rig
     target.data_path = "[\"bendstyle\"]"
     driver.expression = "1 if (var==1) else 0"
-    moveModifier(input_mesh,mod_name,4)
+    moveModifier(input_mesh,mod_name,4+nr_of_modifiers)
 
     #Sharp Bend
     mod_name = "Sharp bend"
@@ -106,7 +105,7 @@ def parent_left_arm(self, context, input_mesh):
     target.id = rig
     target.data_path = "[\"bendstyle\"]"
     driver.expression = "1 if (var==0) else 0"
-    moveModifier(input_mesh,mod_name,5)
+    moveModifier(input_mesh,mod_name,5+nr_of_modifiers)
 
     #Parenting
     left_leg_parent.parent = rig
@@ -138,24 +137,25 @@ def parent_right_arm(self, context, input_mesh):
     right_leg_parent = input_mesh
     rig = isRigSelected(context)
 
+    nr_of_modifiers = len(input_mesh.modifiers)
 
     #Arm Deform
     mod_name = "Arm Deform"
     modifier = right_leg_parent.modifiers.new(name=mod_name, type='LATTICE')
     modifier.object = bpy.data.objects[dynamic_obj_R_list[GetListIndex("Arm Deform LAT R", dynamic_obj_R_list)]]
-    moveModifier(input_mesh,mod_name,0)
+    moveModifier(input_mesh,mod_name,0+nr_of_modifiers)
 
     #Arm Bulge
     mod_name = "Arm Bulge"
     modifier = right_leg_parent.modifiers.new(name=mod_name, type='LATTICE')
     modifier.object = bpy.data.objects[dynamic_obj_R_list[GetListIndex("Arm Bulge LAT R", dynamic_obj_R_list)]]
-    moveModifier(input_mesh,mod_name,1)
+    moveModifier(input_mesh,mod_name,1+nr_of_modifiers)
 
     #twist
     mod_name = "Arm Twist"
     modifier = right_leg_parent.modifiers.new(name=mod_name, type='LATTICE')
     modifier.object = bpy.data.objects[dynamic_obj_R_list[GetListIndex("Arm Twist LAT R", dynamic_obj_R_list)]]
-    moveModifier(input_mesh,mod_name,2)
+    moveModifier(input_mesh,mod_name,2+nr_of_modifiers)
 
     #Arm Squish
     mod_name = "Arm Squish"
@@ -173,7 +173,7 @@ def parent_right_arm(self, context, input_mesh):
     target.id = rig
     target.data_path = "[\"antilag\"]"
     driver.expression = "+1 -var"
-    moveModifier(input_mesh,mod_name,3)
+    moveModifier(input_mesh,mod_name,3+nr_of_modifiers)
 
     #Smooth Bend
     mod_name = "Smooth Bend"
@@ -191,7 +191,7 @@ def parent_right_arm(self, context, input_mesh):
     target.id = rig
     target.data_path = "[\"bendstyle\"]"
     driver.expression = "1 if (var==1) else 0"
-    moveModifier(input_mesh,mod_name,4)
+    moveModifier(input_mesh,mod_name,4+nr_of_modifiers)
 
     #Sharp Bend
     mod_name = "Sharp Bend"
@@ -209,7 +209,7 @@ def parent_right_arm(self, context, input_mesh):
     target.id = rig
     target.data_path = "[\"bendstyle\"]"
     driver.expression = "1 if (var==0) else 0"
-    moveModifier(input_mesh,mod_name,5)
+    moveModifier(input_mesh,mod_name,5+nr_of_modifiers)
 
     #Parenting
     right_leg_parent.parent = rig
@@ -238,25 +238,26 @@ def parent_right_leg(self, context,input_mesh):
     right_leg_parent = input_mesh
     rig = isRigSelected(context)
 
+    nr_of_modifiers = len(input_mesh.modifiers)
 
     #Arm Deform
     mod_name = "Leg Deform"
     modifier = right_leg_parent.modifiers.new(name=mod_name, type='LATTICE')
     modifier.object = bpy.data.objects[dynamic_obj_R_leg_list[GetListIndex("Leg Deform LAT R", dynamic_obj_R_leg_list)]]
-    moveModifier(input_mesh,mod_name,0)
+    moveModifier(input_mesh,mod_name,0+nr_of_modifiers)
 
     #Arm Bulge
     mod_name = "Leg Bulge"
     modifier = right_leg_parent.modifiers.new(name=mod_name, type='LATTICE')
     modifier.object = bpy.data.objects[dynamic_obj_R_leg_list[GetListIndex("Leg Bulge LAT R", dynamic_obj_R_leg_list)]]
-    moveModifier(input_mesh,mod_name,1)
+    moveModifier(input_mesh,mod_name,1+nr_of_modifiers)
 
 
     #Twist
     mod_name = "Leg Twist"
     modifier = right_leg_parent.modifiers.new(name=mod_name, type='LATTICE')
     modifier.object = bpy.data.objects[dynamic_obj_R_leg_list[GetListIndex("Leg Twist LAT R", dynamic_obj_R_leg_list)]]
-    moveModifier(input_mesh,mod_name,2)
+    moveModifier(input_mesh,mod_name,2+nr_of_modifiers)
 
     #Arm Squish
     mod_name = "Leg Squish"
@@ -274,7 +275,7 @@ def parent_right_leg(self, context,input_mesh):
     target.id = rig
     target.data_path = "[\"antilag\"]"
     driver.expression = "+1 -var"
-    moveModifier(input_mesh,mod_name,3)
+    moveModifier(input_mesh,mod_name,3+nr_of_modifiers)
 
     #Smooth Bend
     mod_name = "Smooth Bend"
@@ -292,7 +293,7 @@ def parent_right_leg(self, context,input_mesh):
     target.id = rig
     target.data_path = "[\"bendstyle\"]"
     driver.expression = "1 if (var==1) else 0"
-    moveModifier(input_mesh,mod_name,4)
+    moveModifier(input_mesh,mod_name,4+nr_of_modifiers)
 
     #Sharp Bend
     mod_name = "Sharp Bend"
@@ -339,24 +340,25 @@ def parent_left_leg(self, context,input_mesh):
     left_leg_parent = input_mesh
     rig = isRigSelected(context)
 
+    nr_of_modifiers = len(input_mesh.modifiers)
 
     #Arm Deform
     mod_name = "Leg Deform"
     modifier = left_leg_parent.modifiers.new(name=mod_name, type='LATTICE')
     modifier.object = bpy.data.objects[dynamic_obj_L_list[GetListIndex("Leg Deform LAT L", dynamic_obj_L_list)]]
-    moveModifier(input_mesh,mod_name,0)
+    moveModifier(input_mesh,mod_name,0+nr_of_modifiers)
 
     #Arm Bulge
     mod_name = "Leg Bulge"
     modifier = left_leg_parent.modifiers.new(name=mod_name, type='LATTICE')
     modifier.object = bpy.data.objects[dynamic_obj_L_list[GetListIndex("Leg Bulge LAT L", dynamic_obj_L_list)]]
-    moveModifier(input_mesh,mod_name,1)
+    moveModifier(input_mesh,mod_name,1+nr_of_modifiers)
 
     #Twist
     mod_name = "Leg Twist"
     modifier = left_leg_parent.modifiers.new(name=mod_name, type='LATTICE')
     modifier.object = bpy.data.objects[dynamic_obj_L_list[GetListIndex("Leg Twist LAT L", dynamic_obj_L_list)]]
-    moveModifier(input_mesh,mod_name,2)
+    moveModifier(input_mesh,mod_name,2+nr_of_modifiers)
 
     #Arm Squish
     mod_name = "Leg Squish"
@@ -374,7 +376,7 @@ def parent_left_leg(self, context,input_mesh):
     target.id = rig
     target.data_path = "[\"antilag\"]"
     driver.expression = "+1 -var"
-    moveModifier(input_mesh,mod_name,3)
+    moveModifier(input_mesh,mod_name,3+nr_of_modifiers)
 
     #Smooth Bend
     mod_name = "Smooth Bend"
@@ -392,7 +394,7 @@ def parent_left_leg(self, context,input_mesh):
     target.id = rig
     target.data_path = "[\"bendstyle\"]"
     driver.expression = "1 if (var==1) else 0"
-    moveModifier(input_mesh,mod_name,4)
+    moveModifier(input_mesh,mod_name,4+nr_of_modifiers)
 
     #Sharp Bend
     mod_name = "Sharp Bend"
@@ -410,7 +412,7 @@ def parent_left_leg(self, context,input_mesh):
     target.id = rig
     target.data_path = "[\"bendstyle\"]"
     driver.expression = "1 if (var==0) else 0"
-    moveModifier(input_mesh,mod_name,5)
+    moveModifier(input_mesh,mod_name,5+nr_of_modifiers)
 
     #Parent
     left_leg_parent.parent = rig
@@ -442,6 +444,8 @@ def parent_body_func(self, context,input_mesh):
     body_parent = input_mesh
     rig = isRigSelected(context)
 
+    nr_of_modifiers = len(input_mesh.modifiers)
+
     #weight painting
     vg = body_parent.vertex_groups.new(name="Body_Bendy")
     verts = []
@@ -466,7 +470,7 @@ def parent_body_func(self, context,input_mesh):
     target.data_path = "[\"breastshape\"]"
     driver.expression = "1 -var"
 
-    moveModifier(input_mesh,mod_name,0)
+    moveModifier(input_mesh,mod_name,0+nr_of_modifiers)
 
     #Chest Lattice 2
     mod_name = "Chest Lattice 2"
@@ -485,49 +489,49 @@ def parent_body_func(self, context,input_mesh):
     target.data_path = "[\"breastshape\"]"
     driver.expression = "var"
 
-    moveModifier(input_mesh,mod_name,1)
+    moveModifier(input_mesh,mod_name,1+nr_of_modifiers)
 
     #Body Deform
     mod_name = "Body Deform"
     modifier = body_parent.modifiers.new(name=mod_name, type='LATTICE')
     modifier.object = bpy.data.objects[dynamic_obj_list[GetListIndex("BodyDeforms", dynamic_obj_list)]]
 
-    moveModifier(input_mesh,mod_name,2)
+    moveModifier(input_mesh,mod_name,2+nr_of_modifiers)
 
     #Breath
     mod_name = "Breath Lattice"
     modifier = body_parent.modifiers.new(name=mod_name, type='LATTICE')
     modifier.object = bpy.data.objects[dynamic_obj_list[GetListIndex("Breathing Lattice", dynamic_obj_list)]]
 
-    moveModifier(input_mesh,mod_name,3)
+    moveModifier(input_mesh,mod_name,3+nr_of_modifiers)
 
     #Body Stretch
     mod_name = "Body Stretch"
     modifier = body_parent.modifiers.new(name=mod_name, type='LATTICE')
     modifier.object = bpy.data.objects[dynamic_obj_list[GetListIndex("BodyStretch", dynamic_obj_list)]]
 
-    moveModifier(input_mesh,mod_name,4)
+    moveModifier(input_mesh,mod_name,4+nr_of_modifiers)
     
     #Rounded Top
     mod_name = "Rounded Top Deform"
     modifier = body_parent.modifiers.new(name=mod_name, type='LATTICE')
     modifier.object = bpy.data.objects[dynamic_obj_list[GetListIndex("RoundedBodyTopDeform", dynamic_obj_list)]]
 
-    moveModifier(input_mesh,mod_name,5)
+    moveModifier(input_mesh,mod_name,5+nr_of_modifiers)
 
     #Body Bulge
     mod_name = "Body Bulge"
     modifier = body_parent.modifiers.new(name=mod_name, type='LATTICE')
     modifier.object = bpy.data.objects[dynamic_obj_list[GetListIndex("BodyBulge", dynamic_obj_list)]]
 
-    moveModifier(input_mesh,mod_name,6)
+    moveModifier(input_mesh,mod_name,6+nr_of_modifiers)
 
     #Armature
     mod_name = "Ice Cube"
     modifier = body_parent.modifiers.new(name=mod_name, type='ARMATURE')
     modifier.object = rig
 
-    moveModifier(input_mesh,mod_name,7)
+    moveModifier(input_mesh,mod_name,7+nr_of_modifiers)
 
     #Parenting
     body_parent.parent = rig
@@ -542,6 +546,8 @@ def parent_head_func(self, context,input_mesh):
     dynamic_obj_list = []
     dynamic_objs = ["Head Squish"]
     rig = isRigSelected(context)
+
+    nr_of_modifiers = len(input_mesh.modifiers)
 
     try:
         if input_mesh['ParentedToIceCube'] == 1:
@@ -582,12 +588,12 @@ def parent_head_func(self, context,input_mesh):
     target.id = rig
     target.data_path = "[\"antilag\"]"
     driver.expression = "+1 -var"
-    moveModifier(input_mesh,"Head Squish",0)
+    moveModifier(input_mesh,"Head Squish",0+nr_of_modifiers)
 
     #Armature
     modifier = head_parent.modifiers.new(name="Ice Cube", type='ARMATURE')
     modifier.object = rig
-    moveModifier(input_mesh,"Ice Cube",1)
+    moveModifier(input_mesh,"Ice Cube",1+nr_of_modifiers)
 
     #Parenting
     head_parent.parent = rig
