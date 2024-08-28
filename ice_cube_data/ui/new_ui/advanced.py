@@ -15,6 +15,7 @@ from ice_cube_data.utils.selectors import isRigSelected
 from ice_cube_data.utils.ui_tools import button_toggle
 
 import ice_cube
+import os
 
 def arrowIcon(obj,prop):
     if obj.get(prop):
@@ -542,18 +543,17 @@ def advanced_dlc_ui(self, context, layout, rig_baked, menu_type,icon,scale):
             thumbnail = bpy.data.window_managers["WinMan"].inventory_preview
             thumbnailnopng = thumbnail.split(".")[0]
             cur_asset = context.scene.get("selected_inv_asset")
-
-            asset_missing_file_dir_set = root_folder+"/ice_cube_data/internal_files/important/missing_settings.json"
-            asset_missing_file_dir_inf = root_folder+"/ice_cube_data/internal_files/important/missing_info.json"
+            asset_missing_file_dir_set = os.path.join(root_folder, "ice_cube_data", "internal_files", "important", "missing_settings.json")
+            asset_missing_file_dir_inf = os.path.join(root_folder, "ice_cube_data", "internal_files", "important", "missing_info.json")
 
             if cur_asset != None:
                 cur_selected_asset = context.scene.selected_inv_asset
-                asset_settings_dir = f"{root_folder}/ice_cube_data/internal_files/user_packs/inventory/{cur_selected_asset}/settings.json"
-                asset_info_dir = f"{root_folder}/ice_cube_data/internal_files/user_packs/inventory/{cur_selected_asset}/assets/{thumbnailnopng}/info.json"
+                asset_settings_dir = os.path.join(root_folder, "ice_cube_data", "internal_files", "user_packs", "inventory", cur_selected_asset, "settings.json")
+                asset_info_dir = os.path.join(root_folder, "ice_cube_data", "internal_files", "user_packs", "inventory", cur_selected_asset, "assets", thumbnailnopng, "info.json")
 
             else:
-                asset_settings_dir = root_folder+"/ice_cube_data/internal_files/important/settings.json"
-                asset_info_dir = root_folder+"/ice_cube_data/internal_files/important/info_asset.json"
+                asset_settings_dir = os.path.join(root_folder, "ice_cube_data", "internal_files", "important", "settings.json")
+                asset_info_dir = os.path.join(root_folder, "ice_cube_data", "internal_files", "important", "info_asset.json")
 
             try:
                 with open(asset_settings_dir, 'r') as myfile:

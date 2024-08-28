@@ -91,7 +91,7 @@ def install_update_func(self, context):
         try:
             shutil.rmtree(os.path.join(download_folder, "Ice Cube"))
         except:
-            pass
+            pass # If the folder doesn't exist, ignore the error
 
     except Exception as e:
         CustomErrorBox("Error unpacking update file. Check console","Error", icon="CANCEL")
@@ -109,6 +109,7 @@ def install_update_func(self, context):
     except Exception as e:
         print("Error Completing Install.")
         CustomErrorBox(str(e),"Error installing update file.",'ERROR')
+        print(traceback.format_exc())
 
     return{'FINISHED'}
 
@@ -281,11 +282,11 @@ def IC_download_dlc(self, context, valid_dlcs):
         dlc_folder = os.path.join(root_folder, "ice_cube_data", "internal_files", "user_packs", dlc_type, dlc_id_name)
 
         #checks if a folder for the selected dlc exists, if not, create one.
-        if os.path.exists(dlc_folder):
-            print("Path Found")
-        else:
-            os.mkdir(dlc_folder)
-            print(f"Created {dlc_id_name} Folder")
+        # if os.path.exists(dlc_folder):
+        #     print("Path Found")
+        # else:
+        #     os.mkdir(dlc_folder)
+        #     print(f"Created {dlc_id_name} Folder")
         #clear folder
         ClearDirectory(download_folder)
 
@@ -303,7 +304,7 @@ def IC_download_dlc(self, context, valid_dlcs):
             try:
                 shutil.rmtree(os.path.join(download_folder, dlc_id_name))
             except:
-                pass
+                pass # If the folder doesn't exist, ignore the error
             with zipfile.ZipFile(download_file_loc, 'r') as zip_ref:
                 zip_ref.extractall(download_folder)
             print("Successfully Unzipped File!")
@@ -312,15 +313,17 @@ def IC_download_dlc(self, context, valid_dlcs):
             print("Cleaned Folder")
         except:
             print("Unknown Error")
+            print(traceback.format_exc())
 
         try:
             #install the new DLC
-            shutil.copytree(os.path.join(download_folder, dlc_id_name), dlc_folder)
+            distutils.dir_util.copy_tree(os.path.join(download_folder, dlc_id_name), dlc_folder)
             print("Finished Install!")
             CustomErrorBox("Finished installing DLC!","Updated Finished",'INFO')
-        except:
+        except Exception as e:
             print("Error Completing Install.")
             CustomErrorBox("Error Completing Install.","Updated Cancelled",'ERROR')
+            print(traceback.format_exc())
     except:
             CustomErrorBox("Invalid DLC","Selection Error",'ERROR')
     

@@ -4,6 +4,8 @@ import os
 import json
 from bpy.props import EnumProperty
 
+import traceback
+    
 #Custom Libraries
 from ice_cube import root_folder, cur_asset_id
 from ice_cube_data.utils.ui_tools import CustomErrorBox
@@ -26,8 +28,7 @@ asset_pack_list = []
 asset_pack_names = []
 
 #File Definition
-internalfiles = os.path.join(root_folder, "ice_cube_data/internal_files/user_packs/inventory")
-user_packs = os.path.normpath(internalfiles)
+user_packs = os.path.join(root_folder, "ice_cube_data", "internal_files", "user_packs", "inventory")
 
 def RefreshInvList():
     if len(asset_pack_list) == 0:
@@ -109,14 +110,14 @@ def gettingCustomizationJson(context):
     thumbnailnopng = thumbnail.split(".")[0]
 
 
-    asset_missing_file_dir_inf = root_folder+"/ice_cube_data/internal_files/important/missing_info.json"
+    asset_missing_file_dir_inf = os.path.join(root_folder, "ice_cube_data", "internal_files", "important", "missing_info.json")
     
     cur_asset = context.scene.get("selected_inv_asset")
     if cur_asset != None:
         cur_selected_asset = context.scene.selected_inv_asset
-        asset_info_dir = f"{root_folder}/ice_cube_data/internal_files/user_packs/inventory/{cur_selected_asset}/assets/{thumbnailnopng}/info.json"
+        asset_info_dir = os.path.join(root_folder, "ice_cube_data", "internal_files", "user_packs", "inventory", cur_selected_asset, "assets", thumbnailnopng, "info.json")
     else:
-        asset_info_dir = root_folder+"/ice_cube_data/internal_files/important/info_asset.json"
+        asset_info_dir = os.path.join(root_folder, "ice_cube_data", "internal_files", "important", "info_asset.json")
 
     try:
         with open(asset_info_dir, 'r') as notmyfile:
@@ -210,7 +211,7 @@ def getCollectionParent(target):
 
 def targetingCollection(target,ic_col):
     for collection in bpy.data.collections:
-        if str(collection.name).__contains__(target) and getCollectionParent(collection) in list(ic_col.children):
+        if target in str(collection.name) and getCollectionParent(collection) in list(ic_col.children):
             return collection
 
 def updateParentingCollections(tag,target_collection,ic_collection):
@@ -232,7 +233,7 @@ class append_asset(bpy.types.Operator):
     
     
     def execute(self, context):
-        assets = {};
+        assets = {}
         obj = context.object
         scene = context.scene
         default_collection = True
@@ -264,15 +265,11 @@ class append_asset(bpy.types.Operator):
         #Tries to get a list of all files in [SELECTED ASSET PACK], if none is found it defaults to a backup.
         try:
             selected_file = context.scene.selected_inv_asset
-            asset_directory = root_folder+"/ice_cube_data/internal_files/user_packs/inventory/"+selected_file+"/assets"
-            thumbnails_directory = root_folder+"/ice_cube_data/internal_files/user_packs/inventory/"+selected_file+"/thumbnails"
-            textures_directory = root_folder+"/ice_cube_data/internal_files/user_packs/inventory/"+selected_file+"/textures" #OPTIONAL FOR MOST ASSET PACKS
+            asset_directory = os.path.join(root_folder, "ice_cube_data", "internal_files", "user_packs", "inventory", selected_file, "assets")
+            textures_directory = os.path.join(root_folder, "ice_cube_data", "internal_files", "user_packs", "inventory", selected_file, "textures") #OPTIONAL FOR MOST ASSET PACKS
         except:
             selected_file = "important"
-            asset_directory = root_folder+"/ice_cube_data/internal_files/"+selected_file+"/assets"
-            thumbnails_directory = root_folder+"/ice_cube_data/internal_files/"+selected_file+"/thumbnails"
-        asset_directory = os.path.normpath(asset_directory)
-        thumbnails_directory = os.path.normpath(thumbnails_directory)
+            asset_directory = os.path.join(root_folder, "ice_cube_data", "internal_files", selected_file, "assets")
 
         dirs = getFiles(asset_directory)
 
@@ -312,6 +309,7 @@ class append_asset(bpy.types.Operator):
             CustomErrorBox("Appended \""+thumbnailnopng+"\" from \""+blendfile_name+"\" in \""+selected_file+"\"", "Operation Completed", 'CHECKMARK')
         except:
             CustomErrorBox("An unknown error has occured.", "Unknown Error", 'ERROR')
+            print(traceback.format_exc())   
 
         #####Armor Trim Support
 
