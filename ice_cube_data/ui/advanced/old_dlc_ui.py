@@ -59,7 +59,7 @@ def dlc_menu(self, context, layout, rig_baked, menu_type,icon):
 
     
 
-    if menu_type is "IceCube":
+    if menu_type == "IceCube":
 
         box = layout.box()
         b = box.row(align=True)
@@ -68,10 +68,10 @@ def dlc_menu(self, context, layout, rig_baked, menu_type,icon):
 
     
 
-        if obj.get("dlc_menu_switcher") is 0: #APPEND MENU
+        if obj.get("dlc_menu_switcher") == 0: #APPEND MENU
             b.prop(obj,"ipaneltab6",text="")
 
-            if obj.get("ipaneltab6") is 0: #ASSETS
+            if obj.get("ipaneltab6") == 0: #ASSETS
                 thumbnail = bpy.data.window_managers["WinMan"].inventory_preview
                 thumbnailnopng = thumbnail.split(".")[0]
                 cur_asset = context.scene.get("selected_inv_asset")
@@ -193,7 +193,7 @@ def dlc_menu(self, context, layout, rig_baked, menu_type,icon):
                 b = box.row(align=True)
                 b.label(text="Version: " + asset_json_asset_version)
 
-            if obj.get("ipaneltab6") is 1: #PRESETS
+            if obj.get("ipaneltab6") == 1: #PRESETS
                 thumbnail = bpy.data.window_managers["WinMan"].my_previews_presets
                 thumbnailnopng = thumbnail.split(".")[0]
                 cur_asset = context.scene.get("selected_rig_preset")
@@ -298,7 +298,7 @@ def dlc_menu(self, context, layout, rig_baked, menu_type,icon):
                 b = box.row(align=True)
                 b.label(text="Has \"BAKED\" version?: " + json_rig_baked)
 
-        if obj.get("dlc_menu_switcher") is 1: #DOWNLOAD MENU
+        if obj.get("dlc_menu_switcher") == 1: #DOWNLOAD MENU
             box = layout.box()
             b = box.row(align=True)
             rig = isRigSelected(context)
@@ -311,7 +311,7 @@ def dlc_menu(self, context, layout, rig_baked, menu_type,icon):
             colb.operator("refresh_grab.dlc", text="", icon='FILE_REFRESH')
             colb.operator("download_selected.dlc", text="", icon='IMPORT')
 
-        if obj.get("dlc_menu_switcher") is 2: #GENERATE MENU
+        if obj.get("dlc_menu_switcher") == 2: #GENERATE MENU
             b.prop(obj,"ipaneltab6",text="")
             b = box.row(align=True)
             b.label(text="Panel disabled in classic UI")
@@ -355,7 +355,7 @@ def dlc_menu(self, context, layout, rig_baked, menu_type,icon):
             #    b = box.row(align=True)
             #    b.operator("generate.asest_pack",text="Generate Pack")
 
-    elif menu_type is "ToolMenuAppend":
+    elif menu_type == "ToolMenuAppend":
         box = layout.box()
         b = box.row(align=True)
         wm = context.window_manager
@@ -588,7 +588,7 @@ def dlc_menu(self, context, layout, rig_baked, menu_type,icon):
             b.label(text="Author: " + asset_json_asset_author)
             b = box.row(align=True)
             b.label(text="Version: " + asset_json_asset_version)
-    elif menu_type is "ToolMenuGenerate":
+    elif menu_type == "ToolMenuGenerate":
         box = layout.box()
         b = box.row(align=True)
         b.label(text="Select Generator Type",icon='GEOMETRY_NODES')
