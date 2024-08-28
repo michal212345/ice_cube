@@ -18,6 +18,8 @@ def append_preset_func(self, context, rig_baked):
         obj = context.object
         try:
             selected_file = context.scene.selected_rig_preset
+            if selected_file == None:
+                raise Exception
             asset_directory = os.path.join(root_folder,"ice_cube_data","internal_files","user_packs","rigs",selected_file,"rigs")
         except:
             selected_file = "important"
